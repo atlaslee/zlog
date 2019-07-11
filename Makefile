@@ -22,7 +22,7 @@ WINDOWS_AMD64_NAME=$(BINARY_NAME)-windows-amd64
 
 all: build
 
-build: zlog
+build: main
 
 test:
 	$(GOTEST) -v ./...
