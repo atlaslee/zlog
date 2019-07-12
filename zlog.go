@@ -65,9 +65,9 @@ func SetTagLevel(level uint8, tags ...string) {
 }
 
 func logf(level uint8, format string, v ...interface{}) {
-	callers := make([]uintptr, 1)
+	callers := make([]uintptr, 2)
 	runtime.Callers(4, callers)
-	caller := runtime.FuncForPC(callers[0])
+	caller := runtime.FuncForPC(callers[1])
 	peices := strings.Split(caller.Name(), ".")
 	size := len(peices)
 	pkg := strings.Join(peices[:size-1], "/")
@@ -92,9 +92,9 @@ func logf(level uint8, format string, v ...interface{}) {
 }
 
 func logln(level uint8, v ...interface{}) {
-	callers := make([]uintptr, 1)
+	callers := make([]uintptr, 2)
 	runtime.Callers(4, callers)
-	caller := runtime.FuncForPC(callers[0])
+	caller := runtime.FuncForPC(callers[1])
 	peices := strings.Split(caller.Name(), ".")
 	size := len(peices)
 	pkg := strings.Join(peices[:size-1], "/")
