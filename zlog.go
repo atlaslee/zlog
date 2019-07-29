@@ -49,6 +49,15 @@ var (
 	mu           sync.Mutex                                /* 全局锁，保证zlog线程安全 */
 )
 
+func lastPath(str string) string {
+	peices := strings.Split(str, "/")
+	if len(peices) == 0 {
+		return ""
+	}
+
+	return peices[len(peices)-1]
+}
+
 /* 设置全局日志输出级别，低于该级别的日志不会输出 */
 func SetLevel(level uint8) {
 	globalLevel = level
@@ -65,9 +74,9 @@ func SetTagLevel(level uint8, tags ...string) {
 }
 
 func logf(level uint8, format string, v ...interface{}) {
-	callers := make([]uintptr, 2)
-	runtime.Callers(4, callers)
-	caller := runtime.FuncForPC(callers[1])
+	callers := make([]uintptr, 1)
+	runtime.Callers(5, callers)
+	caller := runtime.FuncForPC(callers[0])
 	peices := strings.Split(caller.Name(), ".")
 	size := len(peices)
 	pkg := strings.Join(peices[:size-1], "/")
@@ -80,21 +89,21 @@ func logf(level uint8, format string, v ...interface{}) {
 		method := peices[size-1]
 		switch level {
 		case VERBOSE, TRACE, DEBUG:
-			log.Printf(fmt.Sprintf("[%c[1;32m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintf(format, v...)))
+			log.Printf(fmt.Sprintf("[%c[1;32m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintf(format, v...)))
 		case INFO, WARNING:
-			log.Printf(fmt.Sprintf("[%c[1;37m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintf(format, v...)))
+			log.Printf(fmt.Sprintf("[%c[1;37m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintf(format, v...)))
 		case ERROR, FATAL:
-			log.Printf(fmt.Sprintf("[%c[1;31m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintf(format, v...)))
+			log.Printf(fmt.Sprintf("[%c[1;31m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintf(format, v...)))
 		default:
-			log.Printf(fmt.Sprintf("[%s][%s: %s] %s", LogLevelNames[level], peices[size-2], method, fmt.Sprintf(format, v...)))
+			log.Printf(fmt.Sprintf("[%s][%s: %s] %s", LogLevelNames[level], lastPath(peices[size-2]), method, fmt.Sprintf(format, v...)))
 		}
 	}
 }
 
 func logln(level uint8, v ...interface{}) {
-	callers := make([]uintptr, 2)
-	runtime.Callers(4, callers)
-	caller := runtime.FuncForPC(callers[1])
+	callers := make([]uintptr, 1)
+	runtime.Callers(5, callers)
+	caller := runtime.FuncForPC(callers[0])
 	peices := strings.Split(caller.Name(), ".")
 	size := len(peices)
 	pkg := strings.Join(peices[:size-1], "/")
@@ -108,13 +117,13 @@ func logln(level uint8, v ...interface{}) {
 		method := peices[size-1]
 		switch level {
 		case VERBOSE, TRACE, DEBUG:
-			log.Printf(fmt.Sprintf("[%c[1;32m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintln(v...)))
+			log.Printf(fmt.Sprintf("[%c[1;32m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintln(v...)))
 		case INFO, WARNING:
-			log.Printf(fmt.Sprintf("[%c[1;37m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintln(v...)))
+			log.Printf(fmt.Sprintf("[%c[1;37m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintln(v...)))
 		case ERROR, FATAL:
-			log.Printf(fmt.Sprintf("[%c[1;31m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, peices[size-2], method, fmt.Sprintln(v...)))
+			log.Printf(fmt.Sprintf("[%c[1;31m%s%c[0m][%s: %s] %s", 0x1B, LogLevelNames[level], 0x1B, lastPath(peices[size-2]), method, fmt.Sprintln(v...)))
 		default:
-			log.Printf(fmt.Sprintf("[%s][%s: %s] %s", LogLevelNames[level], peices[size-2], method, fmt.Sprintln(v...)))
+			log.Printf(fmt.Sprintf("[%s][%s: %s] %s", LogLevelNames[level], lastPath(peices[size-2]), method, fmt.Sprintln(v...)))
 		}
 	}
 }
